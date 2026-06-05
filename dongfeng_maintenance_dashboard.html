@@ -817,9 +817,6 @@ document.getElementById('currentKm').addEventListener('input',e=>{
   updateTracker(parseInt(raw));
 });
 
-const d=new Date();
-const thaiDate=d.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
-document.getElementById('footer-date').textContent='จัดทำ: '+thaiDate;
 
 renderTable();
 </script>
