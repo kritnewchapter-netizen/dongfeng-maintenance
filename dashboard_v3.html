@@ -725,24 +725,24 @@ function renderTable() {
   });
   h+='</tr>';
   // Second header row — colspan=2 centering + border restored
-  const TH = (style,text='') => `<th style="font-size:8px;text-align:center;background:var(--surface2);border-bottom:1px solid var(--border-dark);${style}">${text}</th>`;
+  const BG='#F0FFF4'; const BGYR='#D1FAE5';
+  const TH = (style,text='') => `<th style="font-size:8px;text-align:center;background:${BG};border-bottom:1px solid var(--border-dark);border-right:none;${style}">${text}</th>`;
   h+='<tr>';
-  h+=`<th class="s1" style="width:36px;background:var(--surface2);border-bottom:1px solid var(--border-dark)"></th>`;
-  h+=`<th class="s2" style="width:246px;background:var(--surface2);border-bottom:1px solid var(--border-dark);padding-left:10px;font-size:9px;color:var(--text-muted)">อิงจาก 100,000 KM/ปี</th>`;
-  h+=`<th class="s3" style="width:60px;background:var(--surface2);border-bottom:1px solid var(--border-dark);border-right:2px solid var(--border-dark)"></th>`;
+  h+=`<th class="s1" style="width:36px;background:${BG};border-bottom:1px solid var(--border-dark);border-right:none"></th>`;
+  h+=`<th class="s2" style="width:246px;background:${BG};border-bottom:1px solid var(--border-dark);border-right:none;padding-left:10px;font-size:9px;color:var(--text-muted)">อิงจาก 100,000 KM/ปี</th>`;
+  h+=`<th class="s3" style="width:60px;background:${BG};border-bottom:1px solid var(--border-dark);border-right:2px solid var(--border-dark)"></th>`;
   // 5K = เริ่ม (1 col)
   h+=TH('width:34px;min-width:34px;color:var(--text-muted)','เริ่ม');
-  // Process remaining in year-blocks: each block = 4 intermediate + 1 year mark
   // Layout per block: [blank][M6 colspan=2][blank][ปีN]
   let _yr=0;
   for(let i=1;i<KM.length;i++){
     const km=KM[i];
     if(km%100000===0){
       _yr++;
-      h+=TH('width:34px;min-width:34px;','');                                                   // blank
-      h+=`<th colspan="2" style="text-align:center;font-size:8px;background:var(--surface2);border-bottom:1px solid var(--border-dark);color:var(--text-muted);font-weight:600">M6</th>`; // M6 centered
-      h+=TH('width:34px;min-width:34px;','');                                                   // blank
-      h+=TH('width:34px;min-width:34px;background:#FFF5F5;color:var(--df-red);font-weight:800;','ปี '+_yr); // ปีN
+      h+=TH('width:34px;min-width:34px;','');
+      h+=`<th colspan="2" style="text-align:center;font-size:8px;background:${BG};border-bottom:1px solid var(--border-dark);border-right:none;color:#059669;font-weight:600">M6</th>`;
+      h+=TH('width:34px;min-width:34px;','');
+      h+=TH(`width:34px;min-width:34px;background:${BGYR};color:#065F46;font-weight:800;`,'ปี '+_yr);
     }
   }
   h+='</tr></thead>';
