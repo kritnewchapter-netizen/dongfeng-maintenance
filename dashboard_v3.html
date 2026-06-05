@@ -724,13 +724,13 @@ function renderTable() {
     h+=`<th class="km-header${ms?' milestone':''}" id="th-km-${i}">${kmLabel(km)}</th>`;
   });
   h+='</tr>';
-  // Second header row: month/year
+  // Second header row: month/year (based on 100,000 KM/year = 10 years total)
   h+='<tr>';
   h+=`<th class="s1" style="width:36px;background:var(--surface2);border-bottom:1px solid var(--border)"></th>`;
-  h+=`<th class="s2" style="width:246px;background:var(--surface2);border-bottom:1px solid var(--border);padding-left:10px;font-size:9px;color:var(--text-muted)">อิงจาก 10,000 KM/เดือน</th>`;
+  h+=`<th class="s2" style="width:246px;background:var(--surface2);border-bottom:1px solid var(--border);padding-left:10px;font-size:9px;color:var(--text-muted)">อิงจาก 100,000 KM/ปี (10 ปี = 1,000,000 KM)</th>`;
   h+=`<th class="s3" style="width:60px;background:var(--surface2);border-bottom:1px solid var(--border);border-right:2px solid var(--border-dark)"></th>`;
   KM.forEach((km,i)=>{
-    const months = Math.round(km/10000);
+    const months = Math.round(km * 12 / 100000);
     let timeLabel;
     if(km===5000){ timeLabel='เริ่ม'; }
     else if(months%12===0){ timeLabel='ปี '+(months/12); }
