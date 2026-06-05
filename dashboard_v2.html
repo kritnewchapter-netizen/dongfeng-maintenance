@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DONGFENG — Maintenance Schedule Dashboard</title>
+  <style>
+    :root {
+      --df-red:        #D40010;
+      --df-red-dark:   #A5000C;
+      --df-red-light:  #FDECEA;
+      --bg:            #F4F5F7;
+      --surface:       #FFFFFF;
+      --surface2:      #F8F9FA;
+      --border:        #E5E7EB;
+      --border-dark:   #D1D5DB;
+      --text:          #111827;
+      --text-sub:      #6B7280;
+      --text-muted:    #9CA3AF;
+      --col-R:         #D40010;
+      --col-I:         #1565C0;
+      --col-C:         #1B7A3C;
+      --col-T:         #B45309;
+      --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+      --shadow-md:     0 4px 12px rgba(0,0,0,.08), 0 2px 4px rgba(0,0,0,.04);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body {
+      font-family:'Segoe UI','Helvetica Neue',Arial,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      min-height:100vh;
+      font-size:13px;
+    }
+
+    /* ── HEADER ───────────────────────────── */
+    .header {
+      background:var(--surface);
+      border-bottom:3px solid var(--df-red);
+      position:sticky;
+      top:0;
+      z-index:200;
+      box-shadow:var(--shadow-md);
+    }
+    .header-inner {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:10px 32px;
+      gap:16px;
+    }
+    .logo-area {
+      display:flex;
+      align-items:center;
+      gap:14px;
+      flex-shrink:0;
+    }
+    .df-logo { width:52px; height:52px; flex-shrink:0; }
+    .brand-text .dongfeng {
+      font-size:20px;
+      font-weight:900;
+      letter-spacing:5px;
+      color:#1A1A1A;
+      line-height:1.1;
+    }
+    .brand-text .sub {
+      font-size:9px;
+      letter-spacing:2.5px;
+      color:var(--df-red);
+      text-transform:uppercase;
+      margin-top:2px;
+    }
+    .divider-v {
+      width:1px;
+      height:38px;
+      background:var(--border-dark);
+      flex-shrink:0;
+    }
+    .title-area h1 {
+      font-size:14px;
+      font-weight:700;
+      color:#1A1A1A;
+      letter-spacing:1px;
+      text-transform:uppercase;
+    }
+    .title-area p {
+      font-size:11px;
+      color:var(--text-sub);
+      margin-top:3px;
+    }
+    .header-meta {
+      display:flex;
+      align-items:center;
+      gap:24px;
+      flex-shrink:0;
+    }
+    .meta-badge {
+      display:flex;
+      flex-direction:column;
+      align-items:flex-end;
+      gap:1px;
+    }
+    .meta-badge .label {
+      font-size:9px;
+      letter-spacing:1px;
+      color:var(--text-muted);
+      text-transform:uppercase;
+    }
+    .meta-badge .value {
+      font-size:12px;
+      font-weight:700;
+      color:var(--text-sub);
+    }
+
+    /* ── LAYOUT ───────────────────────────── */
+    .content {
+      max-width:100%;
+      padding:24px 32px;
+      display:flex;
+      flex-direction:column;
+      gap:20px;
+    }
+
+    /* ── TRACKER ──────────────────────────── */
+    .tracker-section {
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:18px 22px;
+      box-shadow:var(--shadow-sm);
+    }
+    .tracker-title {
+      font-size:10px;
+      letter-spacing:2px;
+      color:var(--text-muted);
+      text-transform:uppercase;
+      margin-bottom:14px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .tracker-title::after {
+      content:'';
+      flex:1;
+      height:1px;
+      background:var(--border);
+    }
+    .tracker-inner {
+      display:flex;
+      align-items:flex-start;
+      gap:24px;
+      flex-wrap:wrap;
+    }
+    .km-input-wrap {
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .km-input-wrap label {
+      font-size:10px;
+      color:var(--text-sub);
+      letter-spacing:1px;
+      text-transform:uppercase;
+    }
+    .km-input-group {
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .km-input {
+      background:var(--surface2);
+      border:1.5px solid var(--border-dark);
+      border-radius:7px;
+      color:var(--text);
+      font-size:16px;
+      font-weight:700;
+      padding:8px 14px;
+      width:190px;
+      outline:none;
+      transition:border-color .2s, box-shadow .2s;
+    }
+    .km-input:focus {
+      border-color:var(--df-red);
+      box-shadow:0 0 0 3px rgba(212,0,16,.1);
+    }
+    .km-input::placeholder { color:var(--text-muted); font-size:13px; font-weight:400; }
+    .km-unit { font-size:12px; color:var(--text-sub); font-weight:600; }
+
+    .km-progress-wrap {
+      flex:1;
+      min-width:260px;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      padding-top:22px;
+    }
+    .km-progress-label {
+      display:flex;
+      justify-content:space-between;
+      font-size:10px;
+      color:var(--text-muted);
+    }
+    .km-progress {
+      height:7px;
+      background:var(--bg);
+      border-radius:99px;
+      overflow:hidden;
+      border:1px solid var(--border);
+    }
+    .km-progress-bar {
+      height:100%;
+      background:linear-gradient(90deg,var(--df-red-dark),var(--df-red));
+      border-radius:99px;
+      transition:width .4s;
+    }
+
+    .tracker-results { flex:1; min-width:300px; }
+    .next-service-box {
+      background:var(--surface2);
+      border:1px solid var(--border);
+      border-radius:8px;
+      padding:12px 16px;
+      display:flex;
+      gap:24px;
+      flex-wrap:wrap;
+    }
+    .ns-item { display:flex; flex-direction:column; gap:2px; }
+    .ns-label { font-size:9px; color:var(--text-muted); letter-spacing:1.5px; text-transform:uppercase; }
+    .ns-value { font-size:16px; font-weight:800; color:var(--df-red); }
+    .ns-value.green { color:#059669; }
+    .ns-value.yellow { color:#D97706; }
+    .due-items { margin-top:10px; display:flex; flex-wrap:wrap; gap:6px; }
+    .due-chip {
+      padding:3px 8px;
+      border-radius:5px;
+      font-size:10px;
+      font-weight:600;
+      letter-spacing:.3px;
+      border:1px solid;
+    }
+
+    /* ── CONTROLS ─────────────────────────── */
+    .controls-bar {
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .filter-label {
+      font-size:10px;
+      letter-spacing:1.5px;
+      color:var(--text-muted);
+      text-transform:uppercase;
+    }
+    .filter-btn {
+      padding:5px 13px;
+      border-radius:6px;
+      border:1.5px solid var(--border-dark);
+      background:var(--surface);
+      color:var(--text-sub);
+      cursor:pointer;
+      font-size:11px;
+      font-weight:500;
+      transition:all .15s;
+      box-shadow:var(--shadow-sm);
+    }
+    .filter-btn:hover { border-color:var(--df-red); color:var(--df-red); background:#fff5f5; }
+    .filter-btn.active {
+      background:var(--df-red);
+      border-color:var(--df-red);
+      color:#fff;
+      font-weight:700;
+      box-shadow:0 2px 6px rgba(212,0,16,.3);
+    }
+    .spacer { flex:1; }
+    .search-input {
+      background:var(--surface);
+      border:1.5px solid var(--border-dark);
+      border-radius:6px;
+      color:var(--text);
+      font-size:12px;
+      padding:5px 11px;
+      width:190px;
+      outline:none;
+      transition:border-color .2s, box-shadow .2s;
+      box-shadow:var(--shadow-sm);
+    }
+    .search-input:focus {
+      border-color:var(--df-red);
+      box-shadow:0 0 0 3px rgba(212,0,16,.1);
+    }
+    .search-input::placeholder { color:var(--text-muted); }
+
+    /* ── TABLE SECTION ────────────────────── */
+    .table-section {
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:10px;
+      overflow:hidden;
+      box-shadow:var(--shadow-sm);
+    }
+    .table-header-bar {
+      background:var(--surface2);
+      padding:11px 18px;
+      border-bottom:1px solid var(--border);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .table-header-bar h2 {
+      font-size:11px;
+      letter-spacing:1.5px;
+      color:var(--text-sub);
+      text-transform:uppercase;
+      font-weight:700;
+    }
+    .table-scroll-hint {
+      font-size:9px;
+      color:var(--text-muted);
+      letter-spacing:.5px;
+    }
+    .table-wrap {
+      overflow-x:auto;
+      max-height:calc(100vh - 260px);
+      overflow-y:auto;
+    }
+    .table-wrap::-webkit-scrollbar { height:6px; width:6px; }
+    .table-wrap::-webkit-scrollbar-track { background:var(--bg); }
+    .table-wrap::-webkit-scrollbar-thumb { background:var(--border-dark); border-radius:3px; }
+    .table-wrap::-webkit-scrollbar-thumb:hover { background:var(--df-red); }
+
+    /* ── TABLE ────────────────────────────── */
+    table {
+      border-collapse:collapse;
+      width:max-content;
+      min-width:100%;
+    }
+    thead { position:sticky; top:0; z-index:10; }
+    thead tr th {
+      background:var(--surface2);
+      border-bottom:2px solid var(--df-red);
+      font-size:9px;
+      font-weight:700;
+      letter-spacing:1px;
+      text-transform:uppercase;
+      color:var(--text-sub);
+      padding:8px 5px;
+      white-space:nowrap;
+      border-right:1px solid var(--border);
+    }
+    .km-header {
+      font-size:8.5px !important;
+      color:var(--text-muted) !important;
+      text-align:center;
+      min-width:34px;
+      max-width:34px;
+      padding:6px 2px !important;
+      font-weight:600 !important;
+    }
+    .km-header.milestone {
+      color:var(--df-red) !important;
+      font-weight:800 !important;
+      background:#FFF5F5 !important;
+    }
+
+    /* Sticky cols */
+    .s1 { position:sticky; left:0;    z-index:6; background:var(--surface2) !important; }
+    .s2 { position:sticky; left:36px; z-index:6; background:var(--surface2) !important; }
+    .s3 { position:sticky; left:282px;z-index:6; background:var(--surface2) !important; }
+    .s4 { position:sticky; left:342px;z-index:6; background:var(--surface2) !important; border-right:2px solid var(--border-dark) !important; }
+    tbody .s1 { background:inherit !important; }
+    tbody .s2 { background:inherit !important; }
+    tbody .s3 { background:inherit !important; }
+    tbody .s4 { background:inherit !important; border-right:2px solid var(--border-dark) !important; }
+
+    /* rows */
+    tbody tr {
+      border-bottom:1px solid var(--border);
+      transition:background .1s;
+    }
+    tbody tr:nth-child(even)  { background:#FAFBFF; }
+    tbody tr:nth-child(odd)   { background:#FFFFFF; }
+    tbody tr:hover { background:#EFF6FF !important; }
+    tbody tr.filtered-out { display:none; }
+
+    td {
+      padding:0;
+      vertical-align:middle;
+      border-right:1px solid var(--border);
+    }
+    td.cell-no {
+      width:36px; min-width:36px;
+      text-align:center;
+      font-size:11px;
+      font-weight:700;
+      color:var(--text-muted);
+      padding:6px 0;
+    }
+    td.cell-name {
+      width:246px; min-width:246px;
+      padding:5px 10px;
+      font-size:12px;
+      color:var(--text);
+      font-weight:500;
+    }
+    td.cell-name .en-name {
+      font-size:9.5px;
+      color:var(--text-muted);
+      margin-top:1px;
+    }
+    td.cell-cat {
+      width:60px; min-width:60px;
+      text-align:center;
+      padding:4px;
+      font-size:8.5px;
+    }
+    td.cell-interval {
+      width:72px; min-width:72px;
+      text-align:center;
+      font-size:10px;
+      font-weight:700;
+      color:var(--text-sub);
+      padding:5px 4px;
+      line-height:1.4;
+    }
+    td.cell-km {
+      width:34px; min-width:34px; max-width:34px;
+      text-align:center;
+      padding:3px 2px;
+      height:36px;
+    }
+    .action-cell {
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:24px; height:24px;
+      border-radius:4px;
+      font-size:9.5px;
+      font-weight:800;
+      color:#fff;
+    }
+    .action-R { background:var(--col-R); }
+    .action-I { background:var(--col-I); }
+    .action-C { background:var(--col-C); }
+    .action-T { background:var(--col-T); }
+
+    /* current KM highlight */
+    td.cell-km.current-col { background:rgba(212,0,16,.06) !important; border-left:2px solid var(--df-red); border-right:2px solid var(--df-red); }
+    thead th.current-col-header { background:#FFE8EA !important; color:var(--df-red) !important; }
+
+    /* category left border */
+    tbody tr[data-cat="oil"]    td.cell-no { border-left:3px solid #F59E0B; }
+    tbody tr[data-cat="filter"] td.cell-no { border-left:3px solid #6366F1; }
+    tbody tr[data-cat="grease"] td.cell-no { border-left:3px solid #EC4899; }
+    tbody tr[data-cat="mech"]   td.cell-no { border-left:3px solid #8B5CF6; }
+    tbody tr[data-cat="elec"]   td.cell-no { border-left:3px solid #10B981; }
+
+    /* ── LEGEND ───────────────────────────── */
+    .legend-row {
+      display:flex;
+      align-items:center;
+      gap:20px;
+      flex-wrap:wrap;
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:12px 18px;
+      box-shadow:var(--shadow-sm);
+    }
+    .legend-label {
+      font-size:9.5px;
+      letter-spacing:1.5px;
+      color:var(--text-muted);
+      text-transform:uppercase;
+    }
+    .legend-item {
+      display:flex;
+      align-items:center;
+      gap:7px;
+      font-size:12px;
+      color:var(--text-sub);
+    }
+    .legend-chip {
+      width:26px; height:20px;
+      border-radius:4px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:9.5px;
+      font-weight:800;
+      color:#fff;
+    }
+    .legend-sep {
+      width:1px; height:20px;
+      background:var(--border-dark);
+    }
+
+    /* ── FOOTER ───────────────────────────── */
+    .footer {
+      border-top:1px solid var(--border);
+      padding:10px 32px;
+      display:flex;
+      justify-content:space-between;
+      font-size:10px;
+      color:var(--text-muted);
+      background:var(--surface);
+    }
+
+    @media (max-width:768px)  { .header-meta { display:none; } }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-inner">
+    <div class="logo-area">
+      <div class="brand-text">
+        <div class="dongfeng">DONGFENG</div>
+        <div class="sub">Electric Vehicle</div>
+      </div>
+    </div>
+
+    <div class="divider-v"></div>
+
+    <div class="title-area">
+      <h1>Maintenance Schedule Dashboard</h1>
+      <p>ตารางรายการซ่อมบำรุง &nbsp;|&nbsp; ระยะทาง 5,000 – 1,000,000 KM &nbsp;|&nbsp; 27 รายการ</p>
+    </div>
+
+  </div>
+</header>
+
+<!-- CONTENT -->
+<main class="content">
+
+  <!-- TRACKER -->
+  <div class="tracker-section">
+    <div class="tracker-title">ตรวจสอบระยะซ่อมบำรุง</div>
+    <div class="tracker-inner">
+      <div class="km-input-wrap">
+        <label>เลขกิโลเมตรปัจจุบัน</label>
+        <div class="km-input-group">
+          <input class="km-input" type="number" id="currentKm" placeholder="เช่น 120000" min="0" max="1000000" step="1000"/>
+          <span class="km-unit">KM</span>
+        </div>
+      </div>
+      <div class="km-progress-wrap">
+        <div class="km-progress-label">
+          <span>0 KM</span>
+          <span id="progress-pct">0%</span>
+          <span>1,000,000 KM</span>
+        </div>
+        <div class="km-progress">
+          <div class="km-progress-bar" id="km-bar" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="tracker-results">
+        <div class="next-service-box">
+          <div class="ns-item">
+            <span class="ns-label">Next Service</span>
+            <span class="ns-value" id="ns-km">—</span>
+          </div>
+          <div class="ns-item">
+            <span class="ns-label">เหลืออีก</span>
+            <span class="ns-value green" id="ns-remaining">—</span>
+          </div>
+          <div class="ns-item">
+            <span class="ns-label">รายการที่ต้องทำ</span>
+            <span class="ns-value yellow" id="ns-count">—</span>
+          </div>
+        </div>
+        <div class="due-items" id="due-items"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls-bar">
+    <span class="filter-label">หมวดหมู่ :</span>
+    <button class="filter-btn active" data-filter="all">ทั้งหมด</button>
+    <button class="filter-btn" data-filter="oil">🛢 น้ำมัน/ของเหลว</button>
+    <button class="filter-btn" data-filter="filter">🔵 ไส้กรอง</button>
+    <button class="filter-btn" data-filter="grease">🔧 จาระบี/โอริง</button>
+    <button class="filter-btn" data-filter="mech">⚙️ กลไก/ขันแน่น</button>
+    <button class="filter-btn" data-filter="elec">⚡ ไฟฟ้า/แบตฯ</button>
+    <div class="spacer"></div>
+    <input class="search-input" id="search-input" type="text" placeholder="🔍 ค้นหารายการ..."/>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-section">
+    <div class="table-header-bar">
+      <h2>ตารางซ่อมบำรุง</h2>
+      <span class="table-scroll-hint">← เลื่อนซ้าย/ขวาเพื่อดูตารางทั้งหมด →</span>
+    </div>
+    <div class="table-wrap" id="table-wrap">
+      <table id="main-table"></table>
+    </div>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="legend-row">
+    <span class="legend-label">ประเภทงาน :</span>
+    <div class="legend-item">
+      <span class="legend-chip" style="background:var(--col-R)">R</span>
+      <span>เปลี่ยน (Replace)</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-chip" style="background:var(--col-I)">I</span>
+      <span>ตรวจสอบ (Inspect)</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-chip" style="background:var(--col-C)">C</span>
+      <span>ทำความสะอาด (Clean)</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-chip" style="background:var(--col-T)">T</span>
+      <span>ขันแน่น (Tighten)</span>
+    </div>
+    <div class="legend-sep"></div>
+    <span class="legend-label">หมวดหมู่ :</span>
+    <div class="legend-item"><span style="color:#F59E0B;font-size:14px">●</span> น้ำมัน/ของเหลว</div>
+    <div class="legend-item"><span style="color:#6366F1;font-size:14px">●</span> ไส้กรอง</div>
+    <div class="legend-item"><span style="color:#EC4899;font-size:14px">●</span> จาระบี/โอริง</div>
+    <div class="legend-item"><span style="color:#8B5CF6;font-size:14px">●</span> กลไก/ขันแน่น</div>
+    <div class="legend-item"><span style="color:#10B981;font-size:14px">●</span> ไฟฟ้า/แบตฯ</div>
+  </div>
+
+</main>
+
+<footer class="footer">
+  <div>
+    หมายเหตุ: บริษัทฯ ขอสงวนสิทธิ์ในการเปลี่ยนแปลงโดยไม่ต้องแจ้งให้ทราบล่วงหน้า
+  </div>
+  <div style="text-align:right">&copy; Chinatrucks Co., Ltd.</div>
+</footer>
+
+<script>
+const KM = [
+  5000,  20000, 40000, 60000, 80000,100000,120000,140000,160000,180000,
+  200000,220000,240000,260000,280000,300000,320000,340000,360000,380000,
+  400000,420000,440000,460000,480000,500000,
+  520000,540000,560000,580000,600000,620000,640000,660000,680000,700000,
+  720000,740000,760000,780000,800000,820000,840000,860000,880000,900000,
+  920000,940000,960000,980000,1000000
+];
+
+const ITEMS = [
+  {no:1, name:'น้ำมันเฟืองท้าย',                     en:'Rear Axle Oil',            int:4,  cat:'oil'   },
+  {no:2, name:'น้ำมันเกียร์',                          en:'Gear Oil',                 int:4,  cat:'oil'   },
+  {no:3, name:'น้ำยาหม้อน้ำ',                         en:'Coolant',                  int:12, cat:'oil'   },
+  {no:4, name:'ไส้กรองกรองไดเออร์',                   en:'Dryer Filter',             int:4,  cat:'filter'},
+  {no:5, name:'น้ำมันไฮดรอลิกปั๊มเพาเวอร์ไฟฟ้า',   en:'EPS Hydraulic Oil',         int:6,  cat:'oil'   },
+  {no:6, name:'ไส้กรองกระปุกน้ำมันเพาเวอร์',         en:'Power Steering Filter',    int:6,  cat:'filter'},
+  {no:7, name:'น้ำมันเครื่องปั๊มลมไฟฟ้า',            en:'Electric Air Pump Oil',    int:2,  cat:'oil'   },
+  {no:8, name:'ไส้กรองน้ำมันเครื่องปั๊มลมไฟฟ้า',    en:'Air Pump Oil Filter',      int:2,  cat:'filter'},
+  {no:9, name:'ไส้กรองอากาศปั๊มลมไฟฟ้า',             en:'Air Pump Air Filter',      int:4,  cat:'filter'},
+  {no:10,name:'น้ำมันไฮโดรลิคยกหัวเก๋ง',             en:'Cab Lift Hydraulic Oil',   int:12, cat:'oil'   },
+  {no:11,name:'น้ำมันดุมล้อหน้า',                     en:'Front Wheel Hub Oil',      int:4,  cat:'oil'   },
+  {no:12,name:'โอริงน้ำมันดุมล้อหน้า',                en:'Front Hub Oil O-ring',     int:4,  cat:'grease'},
+  {no:13,name:'ฟิลเตอร์แอร์',                         en:'Air / AC Filter',          int:4,  cat:'filter'},
+  {no:14,name:'จาระบีตัวล็อคสลักจานลาก',             en:'5th Wheel / Kingpin Grease',int:2, cat:'grease'},
+  {no:15,name:'จาระบีช่วงล่าง / กลไกยกหัวเก๋ง / บานพับประตู',en:'Suspension & Door Grease',int:2,cat:'grease'},
+  {no:16,name:'ตรวจสอบลูกหมากคันชัก',                en:'Drag Link Ball Joint',     int:2,  cat:'mech'  },
+  {no:17,name:'ตรวจสอบลูกหมากคันส่ง',                en:'Tie Rod Ball Joint',       int:2,  cat:'mech'  },
+  {no:18,name:'ตรวจสอบลูกปืนดุมล้อหลัง',             en:'Rear Wheel Hub Bearing',   int:16, cat:'mech'  },
+  {no:19,name:'ขันแน่นนอตสแหรกแหนบหน้า',              en:'Front Spring U-bolt',      int:12, cat:'mech'  },
+  {no:20,name:'ขันแน่นนอตสแหรกแหนบหลัง',              en:'Rear Spring U-bolt',       int:12, cat:'mech'  },
+  {no:21,name:'ขันแน่นนอตสเตย์',                      en:'Stay Bolt',                int:12, cat:'mech'  },
+  {no:22,name:'ขันแน่นนอตล้อ',                        en:'Wheel Nuts',               int:12, cat:'mech'  },
+  {no:23,name:'ขันแน่นนอตเพลากลาง',                   en:'Propeller Shaft Nut',      int:8,  cat:'mech'  },
+  {no:24,name:'ตรวจสอบสภาพแบตเตอรี่แรงต่ำ 24V',      en:'24V Auxiliary Battery',    int:2,  cat:'elec'  },
+  {no:25,name:'ตรวจสอบแบตเตอรี่ขับเคลื่อน',          en:'Drive Battery (HV)',       int:2,  cat:'elec'  },
+  {no:26,name:'ตรวจสอบการทำงานชุด TMS',               en:'TMS System Check',         int:2,  cat:'elec'  },
+  {no:27,name:'ตรวจสอบขั้วไฟและกลไกล็อคเต้าชาร์จ',  en:'Charging Port & Lock',     int:2,  cat:'elec'  },
+];
+
+const CAT_META = {
+  oil:   {color:'#F59E0B', label:'น้ำมัน'},
+  filter:{color:'#6366F1', label:'ไส้กรอง'},
+  grease:{color:'#EC4899', label:'จาระบี'},
+  mech:  {color:'#8B5CF6', label:'กลไก'},
+  elec:  {color:'#10B981', label:'ไฟฟ้า'},
+};
+const ACT_COLOR = {R:'#D40010',I:'#1565C0',C:'#1B7A3C',T:'#B45309'};
+
+function getAction(no, i) {
+  switch(no) {
+    case 1: case 2:          return i%2===0?'R':'I';
+    case 3: case 10:         return (i>=6&&(i-6)%6===0)?'R':'I';
+    case 4:                  return i<2?'I':(i%2===0?'R':'I');
+    case 5: case 6:          return i<3?'I':(i%3===0?'R':'I');
+    case 7: case 8:
+    case 14: case 15:        return 'R';
+    case 9: case 13:         return i<2?'C':(i%2===0?'R':'C');
+    case 11: case 12:        return i<2?'I':(i%2===0?'R':'I');
+    case 16: case 17:
+    case 24: case 25:
+    case 26: case 27:        return 'I';
+    case 18:                 return i%8===0?'I':'';
+    case 19: case 20:
+    case 21: case 22:        return i%6===0?'T':'';
+    case 23:                 return i%4===0?'T':'';
+    default:                 return '';
+  }
+}
+
+const SCHEDULE = ITEMS.map(item=>({
+  ...item,
+  schedule: KM.map((_,i)=>getAction(item.no,i))
+}));
+
+function kmLabel(km) {
+  if(km===5000) return '5K*';
+  return (km/1000)+'K';
+}
+
+function renderTable() {
+  let h='<thead><tr>';
+  h+=`<th class="s1" style="width:36px;min-width:36px;text-align:center">No.</th>`;
+  h+=`<th class="s2" style="width:246px;min-width:246px;text-align:left;padding-left:10px">รายการ</th>`;
+  h+=`<th class="s3" style="width:60px;text-align:center">หมวด</th>`;
+  h+=`<th class="s4" style="width:72px;min-width:72px;text-align:center">ระยะเวลา</th>`;
+  KM.forEach((km,i)=>{
+    const ms=km%100000===0&&km>0;
+    h+=`<th class="km-header${ms?' milestone':''}" id="th-km-${i}">${kmLabel(km)}</th>`;
+  });
+  h+='</tr></thead>';
+
+  let b='<tbody>';
+  SCHEDULE.forEach(item=>{
+    const cc=CAT_META[item.cat].color;
+    const cl=CAT_META[item.cat].label;
+    b+=`<tr data-cat="${item.cat}" data-name="${item.name}" data-en="${item.en}">`;
+    b+=`<td class="cell-no s1">${item.no}</td>`;
+    b+=`<td class="cell-name s2"><div>${item.name}</div><div class="en-name">${item.en}</div></td>`;
+    b+=`<td class="cell-cat s3" style="color:${cc};font-weight:700">${cl}</td>`;
+    const kmInt = item.int * 10000;
+    const kmLabel2 = kmInt >= 1000000 ? '1,000,000 KM' : kmInt.toLocaleString()+' KM';
+    b+=`<td class="cell-interval s4">
+      <div style="color:var(--df-red);font-size:10px;font-weight:800">${kmLabel2}</div>
+      <div style="color:var(--text-muted);font-size:9px">/ ${item.int} เดือน</div>
+    </td>`;
+    item.schedule.forEach((act,i)=>{
+      const inner=act?`<span class="action-cell action-${act}">${act}</span>`:'';
+      b+=`<td class="cell-km" id="td-${item.no}-${i}">${inner}</td>`;
+    });
+    b+='</tr>';
+  });
+  b+='</tbody>';
+  document.getElementById('main-table').innerHTML=h+b;
+}
+
+let currentFilter='all', currentSearch='';
+function applyFilters(){
+  document.querySelectorAll('#main-table tbody tr').forEach(tr=>{
+    const cat=tr.dataset.cat;
+    const nm=(tr.dataset.name||'').toLowerCase();
+    const en=(tr.dataset.en||'').toLowerCase();
+    const mCat=currentFilter==='all'||cat===currentFilter;
+    const mSearch=currentSearch===''||nm.includes(currentSearch)||en.includes(currentSearch);
+    tr.classList.toggle('filtered-out',!(mCat&&mSearch));
+  });
+}
+document.querySelectorAll('.filter-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter=btn.dataset.filter;
+    applyFilters();
+  });
+});
+document.getElementById('search-input').addEventListener('input',e=>{
+  currentSearch=e.target.value.toLowerCase().trim();
+  applyFilters();
+});
+
+function findNextKm(cur){ return KM.find(k=>k>cur)||KM[KM.length-1]; }
+function getItemsDue(targetKm){
+  const idx=KM.indexOf(targetKm);
+  if(idx<0)return[];
+  return SCHEDULE.filter(it=>it.schedule[idx]&&it.schedule[idx]!=='')
+    .map(it=>({name:it.name,en:it.en,action:it.schedule[idx]}));
+}
+function updateTracker(cur){
+  const pct=Math.min((cur/1000000)*100,100).toFixed(1);
+  document.getElementById('km-bar').style.width=pct+'%';
+  document.getElementById('progress-pct').textContent=pct+'%';
+  const next=findNextKm(cur);
+  document.getElementById('ns-km').textContent=next.toLocaleString()+' KM';
+  document.getElementById('ns-remaining').textContent=(next-cur).toLocaleString()+' KM';
+  const due=getItemsDue(next);
+  document.getElementById('ns-count').textContent=due.length+' รายการ';
+  document.getElementById('due-items').innerHTML=due.map(d=>`
+    <span class="due-chip" style="background:${ACT_COLOR[d.action]}18;color:${ACT_COLOR[d.action]};border-color:${ACT_COLOR[d.action]}44">
+      <b>[${d.action}]</b> ${d.en}
+    </span>`).join('');
+  document.querySelectorAll('.cell-km,.km-header').forEach(el=>{
+    el.classList.remove('current-col','current-col-header');
+  });
+  const ni=KM.indexOf(next);
+  if(ni>=0){
+    document.getElementById('th-km-'+ni)?.classList.add('current-col-header');
+    document.querySelectorAll('[id^="td-"]').forEach(td=>{
+      if(td.id.endsWith('-'+ni))td.classList.add('current-col');
+    });
+    const th=document.getElementById('th-km-'+ni);
+    if(th) setTimeout(()=>th.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'}),200);
+  }
+}
+function resetTracker(){
+  document.getElementById('km-bar').style.width='0%';
+  document.getElementById('progress-pct').textContent='0%';
+  document.getElementById('ns-km').textContent='—';
+  document.getElementById('ns-remaining').textContent='—';
+  document.getElementById('ns-count').textContent='—';
+  document.getElementById('due-items').innerHTML='';
+  document.querySelectorAll('.cell-km,.km-header').forEach(el=>{
+    el.classList.remove('current-col','current-col-header');
+  });
+}
+document.getElementById('currentKm').addEventListener('input',e=>{
+  const raw=e.target.value.trim();
+  if(raw===''||isNaN(Number(raw))){ resetTracker(); return; }
+  updateTracker(parseInt(raw));
+});
+
+
+renderTable();
+</script>
+</body>
+</html>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
