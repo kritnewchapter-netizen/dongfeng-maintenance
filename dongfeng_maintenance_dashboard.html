@@ -121,76 +121,6 @@
       flex-direction:column;
       gap:20px;
     }
-    .section-label {
-      font-size:10px;
-      letter-spacing:2px;
-      color:var(--text-muted);
-      text-transform:uppercase;
-      display:flex;
-      align-items:center;
-      gap:10px;
-    }
-    .section-label::after {
-      content:'';
-      flex:1;
-      height:1px;
-      background:var(--border);
-    }
-
-    /* ── KPI CARDS ────────────────────────── */
-    .kpi-row {
-      display:grid;
-      grid-template-columns:repeat(6,1fr);
-      gap:12px;
-    }
-    .kpi-card {
-      background:var(--surface);
-      border:1px solid var(--border);
-      border-radius:10px;
-      padding:14px 16px 12px;
-      position:relative;
-      overflow:hidden;
-      box-shadow:var(--shadow-sm);
-      transition:box-shadow .2s, transform .15s;
-    }
-    .kpi-card::before {
-      content:'';
-      position:absolute;
-      top:0; left:0; right:0;
-      height:3px;
-      background:var(--accent,var(--df-red));
-      border-radius:10px 10px 0 0;
-    }
-    .kpi-card:hover {
-      box-shadow:var(--shadow-md);
-      transform:translateY(-1px);
-    }
-    .kpi-label {
-      font-size:9.5px;
-      letter-spacing:1.2px;
-      color:var(--text-muted);
-      text-transform:uppercase;
-      margin-bottom:6px;
-    }
-    .kpi-value {
-      font-size:30px;
-      font-weight:800;
-      color:var(--accent,var(--df-red));
-      line-height:1;
-    }
-    .kpi-desc {
-      font-size:10px;
-      color:var(--text-muted);
-      margin-top:4px;
-    }
-    .kpi-icon {
-      position:absolute;
-      right:12px;
-      top:50%;
-      transform:translateY(-50%);
-      font-size:30px;
-      opacity:.1;
-    }
 
     /* ── TRACKER ──────────────────────────── */
     .tracker-section {
@@ -392,7 +322,7 @@
     }
     .table-wrap {
       overflow-x:auto;
-      max-height:calc(100vh - 340px);
+      max-height:calc(100vh - 260px);
       overflow-y:auto;
     }
     .table-wrap::-webkit-scrollbar { height:6px; width:6px; }
@@ -574,8 +504,7 @@
       background:var(--surface);
     }
 
-    @media (max-width:1200px) { .kpi-row { grid-template-columns:repeat(3,1fr); } }
-    @media (max-width:768px)  { .kpi-row { grid-template-columns:repeat(2,1fr); } .header-meta { display:none; } }
+    @media (max-width:768px)  { .header-meta { display:none; } }
   </style>
 </head>
 <body>
@@ -602,10 +531,6 @@
 
 <!-- CONTENT -->
 <main class="content">
-
-  <!-- KPI -->
-  <div class="section-label">ภาพรวม</div>
-  <div class="kpi-row" id="kpi-row"></div>
 
   <!-- TRACKER -->
   <div class="tracker-section">
@@ -711,12 +636,6 @@
 </footer>
 
 <script>
-// ════════════════════════════════════════════════
-//  KM CHECKPOINTS
-//  Page 1: 5K then every 20K → 500K  (26 points)
-//  Page 2: 520K every 20K  → 1,000K  (25 points)
-//  Total: 51 checkpoints
-// ════════════════════════════════════════════════
 const KM = [
   5000,  20000, 40000, 60000, 80000,100000,120000,140000,160000,180000,
   200000,220000,240000,260000,280000,300000,320000,340000,360000,380000,
@@ -724,7 +643,7 @@ const KM = [
   520000,540000,560000,580000,600000,620000,640000,660000,680000,700000,
   720000,740000,760000,780000,800000,820000,840000,860000,880000,900000,
   920000,940000,960000,980000,1000000
-]; // 51
+];
 
 const ITEMS = [
   {no:1, name:'น้ำมันเฟืองท้าย',                     en:'Rear Axle Oil',            int:4,  cat:'oil'   },
@@ -765,16 +684,6 @@ const CAT_META = {
 };
 const ACT_COLOR = {R:'#D40010',I:'#1565C0',C:'#1B7A3C',T:'#B45309'};
 
-// ════════════════════════════════════════════════
-//  SCHEDULE PATTERN (index-based, verified against PDF)
-//  Each checkpoint is every 20K KM (except first = 5K)
-//  2-month items  → R/I/C every checkpoint (every 20K)
-//  4-month items  → action every 2 checkpoints (every 40K)
-//  6-month items  → action every 3 checkpoints (every 60K)
-//  8-month items  → tighten every 4 checkpoints (every 80K)
-//  12-month items → action every 6 checkpoints (every 120K)
-//  16-month items → inspect every 8 checkpoints (every 160K)
-// ════════════════════════════════════════════════
 function getAction(no, i) {
   switch(no) {
     case 1: case 2:          return i%2===0?'R':'I';
@@ -801,34 +710,9 @@ const SCHEDULE = ITEMS.map(item=>({
   schedule: KM.map((_,i)=>getAction(item.no,i))
 }));
 
-// ════════════════════════════════════════════════
-//  HELPERS
-// ════════════════════════════════════════════════
 function kmLabel(km) {
   if(km===5000) return '5K*';
   return (km/1000)+'K';
-}
-
-function renderKPI() {
-  const cR=SCHEDULE.reduce((s,it)=>s+it.schedule.filter(a=>a==='R').length,0);
-  const cI=SCHEDULE.reduce((s,it)=>s+it.schedule.filter(a=>a==='I').length,0);
-  const cC=SCHEDULE.reduce((s,it)=>s+it.schedule.filter(a=>a==='C').length,0);
-  const cT=SCHEDULE.reduce((s,it)=>s+it.schedule.filter(a=>a==='T').length,0);
-  const cards=[
-    {label:'รายการซ่อมบำรุง', value:27,         desc:'รายการทั้งหมด',           icon:'📋', accent:'#D40010'},
-    {label:'จุดตรวจสอบ',      value:51,         desc:'ตลอด 0 – 1,000,000 KM',  icon:'📍', accent:'#374151'},
-    {label:'เปลี่ยน (R)',     value:cR,         desc:'ครั้ง ตลอดอายุการใช้งาน', icon:'🔴', accent:'#D40010'},
-    {label:'ตรวจสอบ (I)',    value:cI,         desc:'ครั้ง ตลอดอายุการใช้งาน', icon:'🔵', accent:'#1565C0'},
-    {label:'ทำความสะอาด (C)',value:cC,         desc:'ครั้ง ตลอดอายุการใช้งาน', icon:'🟢', accent:'#1B7A3C'},
-    {label:'ขันแน่น (T)',     value:cT,         desc:'ครั้ง ตลอดอายุการใช้งาน', icon:'🔧', accent:'#B45309'},
-  ];
-  document.getElementById('kpi-row').innerHTML = cards.map(c=>`
-    <div class="kpi-card" style="--accent:${c.accent}">
-      <div class="kpi-label">${c.label}</div>
-      <div class="kpi-value">${c.value.toLocaleString()}</div>
-      <div class="kpi-desc">${c.desc}</div>
-      <div class="kpi-icon">${c.icon}</div>
-    </div>`).join('');
 }
 
 function renderTable() {
@@ -860,7 +744,6 @@ function renderTable() {
   document.getElementById('main-table').innerHTML=h+b;
 }
 
-// Filters
 let currentFilter='all', currentSearch='';
 function applyFilters(){
   document.querySelectorAll('#main-table tbody tr').forEach(tr=>{
@@ -885,7 +768,6 @@ document.getElementById('search-input').addEventListener('input',e=>{
   applyFilters();
 });
 
-// KM Tracker
 function findNextKm(cur){ return KM.find(k=>k>cur)||KM[KM.length-1]; }
 function getItemsDue(targetKm){
   const idx=KM.indexOf(targetKm);
@@ -906,7 +788,6 @@ function updateTracker(cur){
     <span class="due-chip" style="background:${ACT_COLOR[d.action]}18;color:${ACT_COLOR[d.action]};border-color:${ACT_COLOR[d.action]}44">
       <b>[${d.action}]</b> ${d.en}
     </span>`).join('');
-  // Highlight column
   document.querySelectorAll('.cell-km,.km-header').forEach(el=>{
     el.classList.remove('current-col','current-col-header');
   });
@@ -937,13 +818,10 @@ document.getElementById('currentKm').addEventListener('input',e=>{
   updateTracker(parseInt(raw));
 });
 
-// Date
 const d=new Date();
 const thaiDate=d.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
 document.getElementById('footer-date').textContent='จัดทำ: '+thaiDate;
 
-// INIT
-renderKPI();
 renderTable();
 </script>
 </body>
