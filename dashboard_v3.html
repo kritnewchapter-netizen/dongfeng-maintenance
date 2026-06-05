@@ -228,7 +228,7 @@
     .ns-item { display:flex; flex-direction:column; gap:2px; }
     .ns-label { font-size:9px; color:var(--text-muted); letter-spacing:1.5px; text-transform:uppercase; }
     .ns-value { font-size:16px; font-weight:800; color:var(--df-red); }
-    .ns-value.green { color:#D40010; }
+    .ns-value.green { color:#059669; }
     .ns-value.yellow { color:#D97706; }
     .due-items { margin-top:10px; display:flex; flex-wrap:wrap; gap:6px; }
     .due-chip {
@@ -596,26 +596,6 @@
       <table id="main-table"></table>
     </div>
   </div>
-    <div class="legend-item">
-      <span class="legend-chip" style="background:var(--col-I)">I</span>
-      <span>ตรวจสอบ (Inspect)</span>
-    </div>
-    <div class="legend-item">
-      <span class="legend-chip" style="background:var(--col-C)">C</span>
-      <span>ทำความสะอาด (Clean)</span>
-    </div>
-    <div class="legend-item">
-      <span class="legend-chip" style="background:var(--col-T)">T</span>
-      <span>ขันแน่น (Tighten)</span>
-    </div>
-    <div class="legend-sep"></div>
-    <span class="legend-label">หมวดหมู่ :</span>
-    <div class="legend-item"><span style="color:#F59E0B;font-size:14px">●</span> น้ำมัน/ของเหลว</div>
-    <div class="legend-item"><span style="color:#6366F1;font-size:14px">●</span> ไส้กรอง</div>
-    <div class="legend-item"><span style="color:#EC4899;font-size:14px">●</span> จาระบี/โอริง</div>
-    <div class="legend-item"><span style="color:#8B5CF6;font-size:14px">●</span> กลไก/ขันแน่น</div>
-    <div class="legend-item"><span style="color:#10B981;font-size:14px">●</span> ไฟฟ้า/แบตฯ</div>
-  </div>
 
   <!-- LEGEND -->
   <div class="legend-row">
@@ -744,25 +724,23 @@ function renderTable() {
     h+=`<th class="km-header${ms?' milestone':''}" id="th-km-${i}">${kmLabel(km)}</th>`;
   });
   h+='</tr>';
-  // Second header row — colspan=2 centering + border restored
+  // ── Second header row: year/6M labels (red bg, colspan centering) ──
   const BG='#FFF5F5'; const BGYR='#FDECEA';
-  const TH = (style,text='') => `<th style="font-size:8px;text-align:center;background:${BG};border-bottom:1px solid var(--border-dark);border-right:none;${style}">${text}</th>`;
+  const TH2 = (style,text='') => `<th style="font-size:8px;text-align:center;background:${BG};border-bottom:1px solid var(--border-dark);border-right:none;${style}">${text}</th>`;
   h+='<tr>';
   h+=`<th class="s1" style="width:36px;background:${BG};border-bottom:1px solid var(--border-dark);border-right:none"></th>`;
   h+=`<th class="s2" style="width:246px;background:${BG};border-bottom:1px solid var(--border-dark);border-right:none;padding-left:10px;font-size:9px;color:var(--text-muted)">อิงจาก 100,000 KM/ปี</th>`;
   h+=`<th class="s3" style="width:60px;background:${BG};border-bottom:1px solid var(--border-dark);border-right:2px solid var(--border-dark)"></th>`;
-  // 5K = เริ่ม (1 col)
-  h+=TH('width:34px;min-width:34px;color:var(--text-muted)','เริ่ม');
-  // Layout per block: [blank][M6 colspan=2][blank][ปีN]
+  h+=TH2('width:34px;min-width:34px;color:var(--text-muted)','เริ่ม');
   let _yr=0;
   for(let i=1;i<KM.length;i++){
     const km=KM[i];
     if(km%100000===0){
       _yr++;
-      h+=TH('width:34px;min-width:34px;','');
+      h+=TH2('width:34px;min-width:34px;','');
       h+=`<th colspan="2" style="text-align:center;font-size:8px;background:${BG};border-bottom:1px solid var(--border-dark);border-right:none;color:#D40010;font-weight:600">M6</th>`;
-      h+=TH('width:34px;min-width:34px;','');
-      h+=TH(`width:34px;min-width:34px;background:${BGYR};color:#A5000C;font-weight:800;`,'ปี '+_yr);
+      h+=TH2('width:34px;min-width:34px;','');
+      h+=TH2(`width:34px;min-width:34px;background:${BGYR};color:#A5000C;font-weight:800;`,'ปี '+_yr);
     }
   }
   h+='</tr></thead>';
